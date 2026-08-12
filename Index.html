@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECANTIO GADGET STORE</title>
+  <style>
+    /* --- RESET & BASIC STYLES --- */
+    * {
+      margin: 0; padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    :root {
+      --primary-dark: #1b3323;     
+      --primary-green: #14281a;    
+      --bg-light: #f4f6f4;         
+      --card-bg: #ffffff;          
+      --accent-gold: #cca028;      
+      --accent-gold-hover: #b58d1f;
+      --text-dark: #14281a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --danger: #ef4444;
+      --success: #10b981;
+    }
+
+    body {
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      padding-bottom: 70px;
+    }
+
+    /* --- LOGIN OVERLAY --- */
+    .login-overlay {
+      position: fixed; inset: 0;
+      background: var(--primary-dark);
+      z-index: 999; display: flex;
+      flex-direction: column; justify-content: center;
+      align-items: center; padding: 1.5rem;
+      overflow-y: auto;
+    }
+
+    .login-header-box { text-align: center; margin-bottom: 1rem; color: #ffffff; }
+    .login-header-box h2 { font-size: 1.8rem; font-weight: 800; color: var(--accent-gold); }
+    .login-header-box p { color: #a3b899; font-size: 0.9rem; }
+
+    .login-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      padding: 1.5rem; border-radius: 20px;
+      width: 100%; max-width: 400px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .login-tabs { display: flex; border-bottom: 2px solid rgba(255, 255, 255, 0.1); margin-bottom: 1.2rem; }
+    .login-tab {
+      flex: 1; text-align: center; padding: 0.6rem;
+      font-weight: 600; color: #a3b899; cursor: pointer; transition: 0.3s; position: relative;
+    }
+    .login-tab.active { color: #ffffff; }
+    .login-tab.active::after {
+      content: ''; position: absolute; bottom: -2px; left: 0;
+      width: 100%; height: 2px; background: var(--accent-gold);
+    }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.4rem; font-size: 0.8rem; color: #e2e8f0; font-weight: 500; }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; padding: 0.75rem 0.9rem;
+      background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px; color: white; outline: none; font-size: 0.9rem;
+    }
+    .form-group input:focus, .form-group textarea:focus { border-color: var(--accent-gold); }
+
+    .btn-submit {
+      width: 100%; background: var(--accent-gold); border: none;
+      color: var(--primary-green); padding: 0.8rem; border-radius: 10px;
+      font-weight: 700; cursor: pointer; font-size: 0.95rem; transition: 0.2s; margin-top: 0.3rem;
+    }
+    .btn-submit:hover { background: var(--accent-gold-hover); }
+
+    /* --- HEADER NAVBAR --- */
+    header { background-color: var(--primary-green); color: white; position: sticky; top: 0; z-index: 100; }
+    .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; }
+    .logo { font-size: 1.3rem; font-weight: 800; color: #ffffff; text-decoration: none; letter-spacing: 1px; }
+    .logo span { color: var(--accent-gold); }
+    .user-badge { font-size: 0.85rem; background: rgba(255, 255, 255, 0.15); padding: 0.4rem 0.8rem; border-radius: 20px; color: #ffffff; font-weight: 600; }
+
+    /* --- HERO & FILTER --- */
+    .hero { text-align: center; padding: 2rem 1rem 1.2rem; }
+    .hero h1 { font-size: 1.8rem; color: var(--primary-green); margin-bottom: 0.3rem; font-weight: 800; }
+    .hero p { color: var(--text-muted); font-size: 0.9rem; }
+
+    .filter-container { display: flex; justify-content: center; gap: 0.6rem; margin: 1.2rem 0 1.8rem; flex-wrap: wrap; }
+    .filter-btn {
+      background: #ffffff; color: var(--primary-green); border: 1px solid var(--border-color);
+      padding: 0.5rem 1.2rem; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: 0.3s;
+    }
+    .filter-btn.active, .filter-btn:hover { background: var(--primary-green); color: #ffffff; border-color: var(--primary-green); }
+
+    /* --- PRODUCT GRID --- */
+    .main-container { max-width: 1200px; margin: 0 auto; padding: 0 1.2rem 3rem; flex: 1; }
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; }
+    
+    .product-card {
+      background: var(--card-bg); border-radius: 16px; overflow: hidden;
+      border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+      display: flex; flex-direction: column; cursor: pointer; transition: transform 0.2s;
+    }
+    .product-card:hover { transform: translateY(-3px); }
+
+    .product-img { width: 100%; height: 200px; object-fit: cover; background-color: #f0f0f0; }
+    .product-info { padding: 1rem; display: flex; flex-direction: column; flex: 1; }
+    .product-category { font-size: 0.7rem; text-transform: uppercase; color: var(--accent-gold); font-weight: bold; }
+    .product-title { font-size: 1rem; color: var(--primary-green); margin: 0.3rem 0; font-weight: 700; }
+    .product-stats { display: flex; align-items: center; gap: 0.6rem; font-size: 0.8rem; margin-bottom: 0.5rem; }
+    .rating { color: #f59e0b; font-weight: bold; }
+    .sold { color: var(--text-muted); }
+    .product-price { font-size: 1.15rem; font-weight: 800; color: var(--primary-green); }
+
+    /* --- HALAMAN DETAIL PRODUK --- */
+    .detail-container {
+      background: #ffffff; border-radius: 16px; padding: 1.2rem;
+      border: 1px solid var(--border-color); max-width: 600px; margin: 0 auto;
+    }
+
+    .btn-back {
+      background: none; border: none; font-size: 1rem; font-weight: 700;
+      color: var(--primary-green); cursor: pointer; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.4rem;
+    }
+
+    /* SLIDER GESER MEDIA (FOTO & VIDEO) */
+    .media-slider-wrapper {
+      position: relative; width: 100%; border-radius: 16px; overflow: hidden; background: #000;
+    }
+
+    .media-slider {
+      display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+      scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
+    }
+    .media-slider::-webkit-scrollbar { display: none; }
+
+    .media-item {
+      flex: 0 0 100%; scroll-snap-align: start; width: 100%; height: 320px; object-fit: cover;
+    }
+
+    .slider-hint {
+      text-align: center; font-size: 0.85rem; font-weight: 600;
+      color: var(--accent-gold); margin: 0.8rem 0;
+    }
+
+    .detail-price { font-size: 1.5rem; font-weight: 800; color: #d97706; }
+    .detail-title { font-size: 1.3rem; font-weight: 700; color: var(--primary-green); margin: 0.5rem 0 1rem; }
+
+    .description-box {
+      background: var(--bg-light); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; font-size: 0.9rem; line-height: 1.5;
+    }
+    .description-box h4 { font-weight: 700; color: var(--primary-green); margin-bottom: 0.4rem; }
+
+    .official-link {
+      margin-top: 0.8rem; font-weight: 600; color: #2563eb; display: block; word-break: break-all;
+    }
+    .official-link a { color: #2563eb; text-decoration: underline; }
+
+    .detail-actions-bar { display: flex; gap: 0.8rem; margin-top: 1.5rem; }
+    .btn-cart-secondary {
+      flex: 1; background: #eaf0eb; color: var(--primary-green); border: none;
+      padding: 0.9rem; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 0.9rem;
+    }
+    .btn-buy-primary {
+      flex: 1.2; background: var(--primary-green); color: white; border: none;
+      padding: 0.9rem; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 0.9rem;
+    }
+
+    /* --- BOTTOM BAR --- */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0; height: 65px;
+      background: #ffffff; border-top: 1px solid var(--border-color);
+      display: flex; justify-content: space-around; align-items: center; z-index: 150;
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; color: var(--text-muted);
+      font-size: 0.75rem; font-weight: 600; background: none; border: none; cursor: pointer; flex: 1;
+    }
+    .nav-item.active { color: var(--primary-green); }
+    .nav-item .icon { font-size: 1.2rem; margin-bottom: 2px; position: relative; }
+    .nav-badge {
+      position: absolute; top: -4px; right: -8px; background: var(--accent-gold);
+      color: var(--primary-green); font-size: 0.65rem; font-weight: bold; padding: 1px 5px; border-radius: 10px;
+    }
+
+    /* --- TRACKING BAR --- */
+    .order-status-bar { display: flex; justify-content: space-between; position: relative; margin: 1.5rem 0; }
+    .order-status-bar::before {
+      content: ''; position: absolute; top: 15px; left: 10%; right: 10%;
+      height: 3px; background: #e2e8f0; z-index: 1;
+    }
+    .status-step { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 0.3rem; flex: 1; }
+    .step-icon {
+      width: 32px; height: 32px; border-radius: 50%; background: #e2e8f0; color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold;
+    }
+    .status-step.active .step-icon { background: var(--primary-green); color: white; }
+    .status-step.done .step-icon { background: var(--accent-gold); color: var(--primary-green); }
+    .step-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); }
+    .status-step.active .step-label { color: var(--primary-green); font-weight: bold; }
+
+    .tracking-timeline { border-left: 2px solid var(--accent-gold); padding-left: 1rem; margin-top: 1rem; margin-left: 0.5rem; }
+    .timeline-item { position: relative; margin-bottom: 0.8rem; font-size: 0.8rem; }
+    .timeline-item::before { content: '●'; color: var(--accent-gold); position: absolute; left: -1.35rem; top: -2px; }
+    .timeline-time { color: var(--text-muted); font-size: 0.75rem; }
+    .timeline-desc { font-weight: 600; color: var(--primary-green); }
+
+    /* --- MODALS & PROFIL --- */
+    .admin-panel-container { background: #ffffff; border: 1px solid var(--border-color); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; }
+    .admin-form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+
+    .modal {
+      display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6);
+      z-index: 200; justify-content: center; align-items: center; padding: 1rem;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: #ffffff; width: 100%; max-width: 500px; border-radius: 16px;
+      overflow: hidden; position: relative; max-height: 90vh; overflow-y: auto;
+    }
+    .close-modal {
+      position: absolute; top: 10px; right: 15px; background: rgba(0,0,0,0.4);
+      border: none; color: white; font-size: 1.3rem; width: 32px; height: 32px;
+      border-radius: 50%; cursor: pointer; z-index: 10;
+    }
+
+    .modal-body { padding: 1.2rem; }
+    .checkout-box, .profile-box { background: var(--bg-light); padding: 1rem; border-radius: 12px; margin-bottom: 1rem; }
+    .checkout-row, .profile-row {
+      display: flex; justify-content: space-between; margin-bottom: 0.6rem;
+      font-size: 0.85rem; border-bottom: 1px dashed #e2e8f0; padding-bottom: 0.4rem;
+    }
+
+    .btn-logout {
+      width: 100%; background: var(--danger); color: white; border: none;
+      padding: 0.8rem; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.9rem; margin-top: 0.5rem;
+    }
+    .btn-action-status {
+      background: var(--primary-green); color: white; border: none; padding: 0.5rem 1rem;
+      border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.8rem; margin-top: 0.5rem; width: 100%;
+    }
+
+    footer { text-align: center; padding: 1.5rem; color: var(--text-muted); font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+  <!-- OVERLAY LOGIN -->
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-header-box">
+      <h2>🍃 ECANTIO STORE</h2>
+      <p>Selamat datang! Silakan masuk untuk melanjutkan.</p>
+    </div>
+
+    <div class="login-card">
+      <div class="login-tabs">
+        <div class="login-tab active" id="tabPengguna" onclick="switchLoginTab('pengguna')">Pengguna</div>
+        <div class="login-tab" id="tabAdmin" onclick="switchLoginTab('admin')">Admin</div>
+      </div>
+
+      <form id="formPengguna" onsubmit="handlePenggunaLogin(event)">
+        <div class="form-group"><label>Nama Lengkap</label><input type="text" id="penggunaName" required placeholder="Budi Santoso"></div>
+        <div class="form-group"><label>Username (USN)</label><input type="text" id="penggunaUsn" required placeholder="budi123"></div>
+        <div class="form-group"><label>No. Telepon / WA</label><input type="tel" id="penggunaPhone" required placeholder="081234567890"></div>
+        <div class="form-group"><label>Alamat Pengiriman</label><textarea id="penggunaAddress" rows="2" required placeholder="Alamat lengkap..."></textarea></div>
+        <button type="submit" class="btn-submit">🛒 Masuk sebagai Pembeli</button>
+      </form>
+
+      <form id="formAdmin" onsubmit="handleAdminLogin(event)" style="display: none;">
+        <div class="form-group"><label>Nama Lengkap Admin</label><input type="text" id="adminName" required placeholder="Admin Ecantio"></div>
+        <div class="form-group"><label>Username (USN) Admin</label><input type="text" id="adminUsn" required placeholder="admin_ecantio"></div>
+        <div class="form-group"><label>No. Telepon / WA Admin</label><input type="tel" id="adminPhone" required placeholder="089876543210"></div>
+        <div class="form-group"><label>Password Admin</label><input type="password" id="adminPass" required placeholder="Masukkan password admin"></div>
+        <button type="submit" class="btn-submit">🏪 Masuk Panel Admin</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header>
+    <div class="nav-container">
+      <a href="#" class="logo" onclick="showHomePage()">ECANTIO <span>GADGET</span></a>
+      <div class="user-info"><span class="user-badge" id="displayRole">👤 Guest</span></div>
+    </div>
+  </header>
+
+  <!-- HALAMAN BERANDA UTAMA -->
+  <div id="homePage">
+    <section class="hero">
+      <h1>Koleksi Gadget Resmiseri</h1>
+      <p>Pilihan Smartphone, Laptop & Tablet Elegan di ECANTIO Store</p>
+      <div class="filter-container">
+        <button class="filter-btn active" onclick="filterCategory('all')">Semua</button>
+        <button class="filter-btn" onclick="filterCategory('hp')">Smartphone</button>
+        <button class="filter-btn" onclick="filterCategory('laptop')">Laptop</button>
+        <button class="filter-btn" onclick="filterCategory('tablet')">Tablet</button>
+      </div>
+    </section>
+
+    <main class="main-container">
+      <!-- PANEL ADMIN -->
+      <div class="admin-panel-container" id="adminPanel" style="display: none;">
+        <h3 style="color: var(--primary-green); margin-bottom: 1rem;">⚙️ Form Penjual (Tambah Produk)</h3>
+        <form onsubmit="addNewProduct(event)">
+          <div class="admin-form-grid">
+            <div class="form-group"><label style="color: var(--text-dark);">Nama Produk</label><input type="text" id="addName" required placeholder="iPhone 16 Plus"></div>
+            <div class="form-group"><label style="color: var(--text-dark);">Kategori</label>
+              <select id="addCategory"><option value="hp">Smartphone</option><option value="laptop">Laptop</option><option value="tablet">Tablet</option></select>
+            </div>
+            <div class="form-group"><label style="color: var(--text-dark);">Harga (Rp)</label><input type="number" id="addPrice" required placeholder="18999000"></div>
+            <div class="form-group"><label style="color: var(--text-dark);">Path Foto</label><input type="text" id="addImage" required placeholder="images/iphone16.jpg"></div>
+            <div class="form-group"><label style="color: var(--text-dark);">Path Video</label><input type="text" id="addVideo" required placeholder="videos/iphone16.mp4"></div>
+            <div class="form-group"><label style="color: var(--text-dark);">URL Web Resmi</label><input type="text" id="addOfficialUrl" required placeholder="https://www.ibox.co.id"></div>
+            <div class="form-group"><label style="color: var(--text-dark);">Rating</label><input type="number" step="0.1" id="addRating" required placeholder="4.9"></div>
+            <div class="form-group"><label style="color: var(--text-dark);">Terjual</label><input type="number" id="addSold" required placeholder="250"></div>
+          </div>
+          <div class="form-group"><label style="color: var(--text-dark);">Deskripsi</label><textarea id="addDesc" rows="2" placeholder="Deskripsi..." required></textarea></div>
+          <button type="submit" class="btn-submit">+ Simpan Produk Baru</button>
+        </form>
+
+        <hr style="margin: 1.5rem 0; border: none; border-top: 1px dashed var(--border-color);">
+        <h3 style="color: var(--primary-green); margin-bottom: 0.5rem;">📦 Kelola Pesanan Masuk (Admin)</h3>
+        <div id="adminOrderList" style="font-size: 0.85rem; color: var(--text-muted);">Belum ada pesanan dari pembeli.</div>
+      </div>
+
+      <!-- PRODUCT GRID -->
+      <div class="product-grid" id="productGrid"></div>
+    </main>
+  </div>
+
+  <!-- HALAMAN DETAIL PRODUK -->
+  <div id="detailPage" class="main-container" style="display: none; padding-top: 1.5rem;">
+    <div class="detail-container">
+      <button class="btn-back" onclick="showHomePage()">← Kembali ke Beranda</button>
+      
+      <!-- SLIDER FOTO & VIDEO -->
+      <div class="media-slider-wrapper">
+        <div class="media-slider" id="detailMediaSlider">
+          <!-- Foto & Video disuntik lewat JS -->
+        </div>
+      </div>
+      <div class="slider-hint">👉 Geser untuk melihat video produk 👈</div>
+
+      <!-- HARGA, RATING & TERJUAL -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.8rem;">
+        <div class="detail-price" id="detailPrice">Rp 0</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.4rem;">
+          <span id="detailRating" style="color: #f59e0b; font-weight: bold;">★ 0.0</span>
+          <span>•</span>
+          <span id="detailSold">0 Terjual</span>
+        </div>
+      </div>
+
+      <h2 class="detail-title" id="detailTitle">Nama Produk</h2>
+
+      <!-- BOX DESKRIPSI & SPESIFIKASI -->
+      <div class="description-box">
+        <h4>Deskripsi Produk:</h4>
+        <p id="detailDesc">-</p>
+        <div class="official-link">
+          🔗 <strong>Spesifikasi Lengkap:</strong> 
+          <a id="detailOfficialUrl" href="#" target="_blank">Klik disini untuk lihat spesifikasi resmi</a>
+        </div>
+      </div>
+
+      <!-- BOX ULASAN PEMBELI -->
+      <div class="description-box">
+        <h4 style="margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center;">
+          <span>💬 Ulasan Pembeli (4)</span>
+          <span style="font-size: 0.8rem; color: #f59e0b;">★ 4.9 / 5.0</span>
+        </h4>
+        <div id="detailReviewsList">
+          <!-- 4 Ulasan disuntik lewat JS -->
+        </div>
+      </div>
+
+      <div class="detail-actions-bar">
+        <button class="btn-cart-secondary" onclick="addToCartFromDetail()">🛒 + Keranjang</button>
+        <button class="btn-buy-primary" onclick="buyNowFromDetail()">Beli Sekarang</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM BAR NAVIGATION -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="switchTabNav('beranda')"><span class="icon">🏠</span><span>Beranda</span></button>
+    <button class="nav-item" onclick="switchTabNav('keranjang')"><span class="icon">🛒<span class="nav-badge" id="cartCount">0</span></span><span>Keranjang</span></button>
+    <button class="nav-item" onclick="openOrderTrackingModal()"><span class="icon">📦</span><span>Pesanan</span></button>
+    <button class="nav-item" onclick="openProfileModal()"><span class="icon">👤</span><span>Profil</span></button>
+  </nav>
+
+  <!-- MODAL PELACAKAN PESANAN -->
+  <div class="modal" id="orderModal">
+    <div class="modal-content">
+      <button class="close-modal" onclick="closeOrderModal()">&times;</button>
+      <div class="modal-body" id="orderModalBody"></div>
+    </div>
+  </div>
+
+  <!-- MODAL PROFIL -->
+  <div class="modal" id="profileModal">
+    <div class="modal-content">
+      <button class="close-modal" onclick="closeProfileModal()">&times;</button>
+      <div class="modal-body">
+        <h3 style="color: var(--primary-green); margin-bottom: 0.8rem;">👤 Informasi Profil</h3>
+        <div class="profile-box">
+          <div class="profile-row"><span>Status:</span><strong id="profileRole" style="color: var(--accent-gold);">-</strong></div>
+          <div class="profile-row"><span>Nama:</span><strong id="profileName">-</strong></div>
+          <div class="profile-row"><span>Username:</span><strong id="profileUsn">-</strong></div>
+          <div class="profile-row"><span>No. HP:</span><strong id="profilePhone">-</strong></div>
+          <div class="profile-row"><span>Alamat:</span><strong id="profileAddress" style="text-align: right; max-width: 60%;">-</strong></div>
+        </div>
+        <button class="btn-logout" onclick="logout()">🚪 Log Out (Keluar Akun)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CHECKOUT -->
+  <div class="modal" id="checkoutModal">
+    <div class="modal-content">
+      <button class="close-modal" onclick="closeCheckoutModal()">&times;</button>
+      <div class="modal-body">
+        <h3 style="color: var(--primary-green); margin-bottom: 0.5rem;">Konfirmasi Pesanan</h3>
+        <div class="checkout-box">
+          <div class="checkout-row"><span>Nama:</span><strong id="checkoutName">-</strong></div>
+          <div class="checkout-row"><span>Alamat:</span><strong id="checkoutAddress" style="text-align: right; max-width: 60%;">-</strong></div>
+        </div>
+        <div class="checkout-box">
+          <div class="checkout-row"><span id="checkoutProductName">Item</span><strong id="checkoutProductPrice">Rp 0</strong></div>
+          <div class="checkout-row"><span>Ongkir:</span><strong>Rp 20.000</strong></div>
+          <div class="checkout-row total"><span>Total Bayar:</span><span id="checkoutTotalPrice">Rp 0</span></div>
+        </div>
+        <button class="btn-submit" onclick="confirmOrder()">✅ Konfirmasi Pesanan</button>
+      </div>
+    </div>
+  </div>
+
+  <footer><p>&copy; 2026 ECANTIO STORE. All rights reserved.</p></footer>
+  <script>
+    // DATA 6 PRODUK RESMI + HYPERLINK + 4 ULASAN PEMBELI PER PRODUK
+    let products = [
+      {
+        id: 1,
+        category: 'hp',
+        name: 'iPhone 16 Plus',
+        priceNum: 18999000,
+        price: 'Rp 18.999.000',
+        rating: 4.9,
+        sold: 320,
+        image: 'Ipa.jpeg',
+        video: 'Ipa.mp4',
+        officialUrl: 'https://www.ibox.co.id',
+        desc: 'Smartphone Apple generasi terbaru dengan Dynamic Island, chip A18 Bionic, kamera pro-grade, dan daya tahan baterai ekstra panjang.',
+        reviews: [
+          { name: 'Rian Hidayat', rating: '⭐⭐⭐⭐⭐', date: '2 hari lalu', comment: 'Barang ori iBox! Pengiriman cepat banget, paking kayu aman. Mantap ECANTIO!' },
+          { name: 'Siti Rahma', rating: '⭐⭐⭐⭐⭐', date: '1 minggu lalu', comment: 'Warna bodinya cantik banget, kamera jernih gila buat bikin konten.' },
+          { name: 'Andi Pratama', rating: '⭐⭐⭐⭐☆', date: '2 minggu lalu', comment: 'Layar super jernih dan mulus. Baterai awet banget dipakai seharian.' },
+          { name: 'Dini Lestari', rating: '⭐⭐⭐⭐⭐', date: '1 bulan lalu', comment: 'Respon seller cepat dan ramah, admin langsung konfirmasi status pengiriman.' }
+        ]
+      },
+      {
+        id: 2,
+        category: 'hp',
+        name: 'Samsung S25 Ultra',
+        priceNum: 21999000,
+        price: 'Rp 21.999.000',
+        rating: 5.0,
+        sold: 210,
+        image: 'Sm.jpeg',
+        video: 'Sm.mp4',
+        officialUrl: 'https://www.samsung.com/id/smartphones/galaxy-s/',
+        desc: 'Flagship Samsung dengan Galaxy AI tercanggih, bodi Titanium ringan, S-Pen terintegrasi, dan kamera 200MP Zoom 100x.',
+        reviews: [
+          { name: 'Fajar Nugraha', rating: '⭐⭐⭐⭐⭐', date: 'Kemarin', comment: 'Fitur Galaxy AI nya beneran ngebantu buat kerjaan kantor. Recommended!' },
+          { name: 'Maya Indah', rating: '⭐⭐⭐⭐⭐', date: '3 hari lalu', comment: 'Zoom 100x nya gokil banget buat nonton konser jernih parah.' },
+          { name: 'Bagas Perkasa', rating: '⭐⭐⭐⭐⭐', date: '2 minggu lalu', comment: 'Bodi titanium terasa kokoh tapi tetap ringan di genggaman.' },
+          { name: 'Eka Putri', rating: '⭐⭐⭐⭐⭐', date: '3 minggu lalu', comment: 'S-Pen bawaan sangat responsif buat gambar dan catat meeting.' }
+        ]
+      },
+      {
+        id: 3,
+        category: 'laptop',
+        name: 'Laptop Asus Vivobook 14',
+        priceNum: 8999000,
+        price: 'Rp 8.999.000',
+        rating: 4.8,
+        sold: 185,
+        image: 'Bok.jpeg',
+        video: 'Bok.mp4',
+        officialUrl: 'https://www.asus.com/id/laptops/for-home/vivobook/',
+        desc: 'Laptop tipis dan stylish untuk kebutuhan harian, tugas sekolah, dan kerja dengan prosesor Intel Core bertenaga.',
+        reviews: [
+          { name: 'Dewi Kartika', rating: '⭐⭐⭐⭐⭐', date: '4 hari lalu', comment: 'Cocok banget buat kuliah, enteng dibawa ke kampus. Booting-nya kilat.' },
+          { name: 'Rizky Kurnia', rating: '⭐⭐⭐⭐☆', date: '1 minggu lalu', comment: 'Keyboard empuk nyaman buat ngetik skripsi berjam-jam.' },
+          { name: 'Toni Wijaya', rating: '⭐⭐⭐⭐⭐', date: '2 minggu lalu', comment: 'Harga terjangkau tapi spesifikasi oke banget buat multitasking.' },
+          { name: 'Nadia Syafira', rating: '⭐⭐⭐⭐⭐', date: '1 bulan lalu', comment: 'Garansi resmi terdaftar. Pengemasan sangat rapi pakai bubble tebal.' }
+        ]
+      },
+      {
+        id: 4,
+        category: 'laptop',
+        name: 'Laptop ROG Strix SCAR',
+        priceNum: 32999000,
+        price: 'Rp 32.999.000',
+        rating: 4.9,
+        sold: 95,
+        image: 'Rogi.jpeg',
+        video: 'Rogi.mp4',
+        officialUrl: 'https://rog.asus.com/id/laptops-group/',
+        desc: 'Laptop gaming kelas sultan dengan kartu grafis NVIDIA RTX Seri 40, layar ROG Nebula 240Hz, dan sistem pendingin liquid metal.',
+        reviews: [
+          { name: 'GamerSejati99', rating: '⭐⭐⭐⭐⭐', date: '3 hari lalu', comment: 'Libas game AAA rata kanan tanpa fps drop. Suhu tetep adem!' },
+          { name: 'Kevin Sanjaya', rating: '⭐⭐⭐⭐⭐', date: '1 minggu lalu', comment: 'Layar 240Hz warnanya tajam banget. RGB nya bisa di custom keren.' },
+          { name: 'Ahmad Zaki', rating: '⭐⭐⭐⭐⭐', date: '3 minggu lalu', comment: 'Laptop gaming impian akhirnya kesampaian, admin toko fast respon.' },
+          { name: 'Lia Marlina', rating: '⭐⭐⭐⭐☆', date: '1 bulan lalu', comment: 'Performa monster! Hanya saja adaptor casannya lumayan besar.' }
+        ]
+      },
+      {
+        id: 5,
+        category: 'tablet',
+        name: 'iPad Pro M4',
+        priceNum: 20499000,
+        price: 'Rp 20.499.000',
+        rating: 4.9,
+        sold: 140,
+        image: 'Pri.jpeg',
+        video: 'Pri.mp4',
+        officialUrl: 'https://www.ibox.co.id/category/ipad-pro-1823',
+        desc: 'iPad tertipis dan paling bertenaga dengan Chipset Apple M4, Layar Ultra Retina XDR OLED, serta dukungan Apple Pencil Pro.',
+        reviews: [
+          { name: 'DesainerGrafis', rating: '⭐⭐⭐⭐⭐', date: '2 hari lalu', comment: 'Chip M4 kencang luar biasa buat rendering 3D dan edit video 4K di Procreate.' },
+          { name: 'Hendra Setiawan', rating: '⭐⭐⭐⭐⭐', date: '5 hari lalu', comment: 'Layarnya luar biasa jernih! Sangat tipis berasa pegang papan masa depan.' },
+          { name: 'Bella Safira', rating: '⭐⭐⭐⭐⭐', date: '2 minggu lalu', comment: 'Beli paket bundling pencil pro mantap banget. Rekomendasi seller!' },
+          { name: 'Irfan Bachdim', rating: '⭐⭐⭐⭐☆', date: '3 minggu lalu', comment: 'Proses checkout gampang dan resi tracking admin selalu update.' }
+        ]
+      },
+      {
+        id: 6,
+        category: 'tablet',
+        name: 'iPad Air M2',
+        priceNum: 11999000,
+        price: 'Rp 11.999.000',
+        rating: 4.7,
+        sold: 280,
+        image:'Ar.jpeg'
+        video:'Ar.mp4',
+        officialUrl: 'https://www.ibox.co.id/category/ipad-air-1822',
+        desc: 'Tablet serbaguna dengan chip Apple M2 super cepat, kamera depan lanskap 12MP, dan pilihan warna pastel yang estetik.',
+        reviews: [
+          { name: 'Clarissa', rating: '⭐⭐⭐⭐⭐', date: '3 hari lalu', comment: 'Warna starlight-nya estetik banget! Dipakai nyatet kuliah nyaman pol.' },
+          { name: 'Dimas Anggara', rating: '⭐⭐⭐⭐⭐', date: '1 minggu lalu', comment: 'Chip M2 sudah lebih dari cukup untuk produktivitas harian dan main game.' },
+          { name: 'Fitri Handayani', rating: '⭐⭐⭐⭐☆', date: '2 minggu lalu', comment: 'Speaker stereo suaranya lantang jernih buat nonton film.' },
+          { name: 'Yudi Pratama', rating: '⭐⭐⭐⭐⭐', date: '1 bulan lalu', comment: 'Pengiriman aman terjamin. Terima kasih Ecantio Store!' }
+        ]
+      }
+    ];
+
+    let cartCount = 0;
+    let selectedProductId = null;
+    let currentUserRole = 'guest';
+    let userData = { name: '', usn: '', phone: '', address: '' };
+    let activeOrder = JSON.parse(localStorage.getItem('ecantio_order')) || null;
+    window.onload = function() {
+      const savedUser = JSON.parse(localStorage.getItem('ecantio_user_pembeli')) || JSON.parse(localStorage.getItem('ecantio_user_admin'));
+      const savedRole = localStorage.getItem('ecantio_role_pembeli') || localStorage.getItem('ecantio_role_admin');
+
+      if (savedUser && savedRole) {
+        userData = savedUser;
+        currentUserRole = savedRole;
+        
+        document.getElementById('displayRole').innerText = currentUserRole.includes('Admin') ? `⚡ ${userData.name}` : `👤 ${userData.name}`;
+        document.getElementById('loginOverlay').style.display = 'none';
+        
+        if (currentUserRole.includes('Admin')) {
+          document.getElementById('adminPanel').style.display = 'block';
+        }
+      }
+      renderProducts('all');
+      renderAdminOrderList();
+    };
+
+    function switchLoginTab(tab) {
+      document.getElementById('tabPengguna').classList.toggle('active', tab === 'pengguna');
+      document.getElementById('tabAdmin').classList.toggle('active', tab === 'admin');
+      document.getElementById('formPengguna').style.display = tab === 'pengguna' ? 'block' : 'none';
+      document.getElementById('formAdmin').style.display = tab === 'admin' ? 'block' : 'none';
+    }
+
+    function handlePenggunaLogin(e) {
+      e.preventDefault();
+      userData = {
+        name: document.getElementById('penggunaName').value,
+        usn: document.getElementById('penggunaUsn').value,
+        phone: document.getElementById('penggunaPhone').value,
+        address: document.getElementById('penggunaAddress').value
+      };
+      currentUserRole = 'Pembeli';
+
+      localStorage.setItem('ecantio_user_pembeli', JSON.stringify(userData));
+      localStorage.setItem('ecantio_role_pembeli', currentUserRole);
+
+      document.getElementById('displayRole').innerText = `👤 ${userData.name}`;
+      document.getElementById('loginOverlay').style.display = 'none';
+      document.getElementById('adminPanel').style.display = 'none';
+      renderProducts('all');
+    }
+
+    function handleAdminLogin(e) {
+      e.preventDefault();
+      if (document.getElementById('adminPass').value === 'admin123') {
+        userData = {
+          name: document.getElementById('adminName').value,
+          usn: document.getElementById('adminUsn').value,
+          phone: document.getElementById('adminPhone').value,
+          address: 'Toko Utama ECANTIO Store'
+        };
+        currentUserRole = 'Penjual (Admin)';
+
+        localStorage.setItem('ecantio_user_admin', JSON.stringify(userData));
+        localStorage.setItem('ecantio_role_admin', currentUserRole);
+
+        document.getElementById('displayRole').innerText = `⚡ ${userData.name}`;
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('adminPanel').style.display = 'block';
+        renderProducts('all');
+        renderAdminOrderList();
+      } else {
+        alert('Password Admin Salah! (Gunakan: admin123)');
+      }
+    }
+
+    function logout() {
+      if(confirm('Yakin ingin keluar? Sesi login kamu akan dihapus.')) {
+        localStorage.removeItem('ecantio_user_pembeli');
+        localStorage.removeItem('ecantio_role_pembeli');
+        localStorage.removeItem('ecantio_user_admin');
+        localStorage.removeItem('ecantio_role_admin');
+        closeProfileModal();
+        currentUserRole = 'guest';
+        userData = { name: '', usn: '', phone: '', address: '' };
+        document.getElementById('displayRole').innerText = '👤 Guest';
+        document.getElementById('adminPanel').style.display = 'none';
+        document.getElementById('loginOverlay').style.display = 'flex';
+        showHomePage();
+      }
+    }
+
+    function showHomePage() {
+      document.getElementById('homePage').style.display = 'block';
+      document.getElementById('detailPage').style.display = 'none';
+      window.scrollTo(0,0);
+    }
+
+    function openProductDetail(id) {
+      const product = products.find(p => p.id === id);
+      if(!product) return;
+
+      selectedProductId = id;
+
+      document.getElementById('detailTitle').innerText = product.name;
+      document.getElementById('detailPrice').innerText = product.price;
+      document.getElementById('detailRating').innerText = `★ ${product.rating}`;
+      document.getElementById('detailSold').innerText = `${product.sold}+ Terjual`;
+      document.getElementById('detailDesc').innerText = product.desc;
+
+      const linkEl = document.getElementById('detailOfficialUrl');
+      linkEl.href = product.officialUrl;
+      linkEl.innerText = `Klik disini untuk lihat spesifikasi resmi ${product.name}`;
+
+      const reviewsContainer = document.getElementById('detailReviewsList');
+      if (product.reviews && product.reviews.length > 0) {
+        reviewsContainer.innerHTML = product.reviews.map(rev => `
+          <div style="border-bottom: 1px dashed var(--border-color); padding: 0.6rem 0;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+              <strong>${rev.name}</strong>
+              <span style="color: var(--text-muted); font-size: 0.75rem;">${rev.date}</span>
+            </div>
+            <div style="font-size: 0.75rem; margin: 0.2rem 0;">${rev.rating}</div>
+            <p style="font-size: 0.8rem; color: var(--text-dark);">${rev.comment}</p>
+          </div>
+        `).join('');
+      } else {
+        reviewsContainer.innerHTML = '<p style="font-size: 0.8rem; color: var(--text-muted);">Belum ada ulasan.</p>';
+      }
+
+      const slider = document.getElementById('detailMediaSlider');
+      slider.innerHTML = `
+        <img src="${product.image}" class="media-item" onerror="this.src='https://via.placeholder.com/600x400?text=${encodeURIComponent(product.name)}'">
+        <video class="media-item" controls poster="${product.image}">
+          <source src="${product.video}" type="video/mp4">
+        </video>
+      `;
+
+      document.getElementById('homePage').style.display = 'none';
+      document.getElementById('detailPage').style.display = 'block';
+      window.scrollTo(0,0);
+    }
+
+    function addToCartFromDetail() {
+      cartCount++;
+      document.getElementById('cartCount').innerText = cartCount;
+      alert('Produk berhasil ditambahkan ke Keranjang!');
+    }
+
+    function buyNowFromDetail() {
+      openCheckoutModal(selectedProductId);
+    }
+
+    function renderProducts(categoryFilter = 'all') {
+      const grid = document.getElementById('productGrid');
+      grid.innerHTML = '';
+      const filtered = categoryFilter === 'all' ? products : products.filter(p => p.category === categoryFilter);
+
+      filtered.forEach(product => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.onclick = function() { openProductDetail(product.id); };
+
+        card.innerHTML = `
+          <img src="${product.image}" alt="${product.name}" class="product-img" onerror="this.src='https://via.placeholder.com/300x200?text=${encodeURIComponent(product.name)}'">
+          <div class="product-info">
+            <span class="product-category">${product.category}</span>
+            <h3 class="product-title">${product.name}</h3>
+            <div class="product-stats"><span class="rating">★ ${product.rating}</span><span class="sold">• Terjual ${product.sold}+</span></div>
+            <div class="product-price">${product.price}</div>
+            ${currentUserRole.includes('Admin') ? `<button class="btn-delete-admin" style="margin-top:0.5rem;" onclick="event.stopPropagation(); deleteProduct(${product.id});">🗑️ Hapus Produk</button>` : ''}
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function confirmOrder() {
+      const product = products.find(p => p.id === selectedProductId);
+      
+      activeOrder = {
+        id: 'ECT-' + Math.floor(100000 + Math.random() * 900000),
+        productName: product.name,
+        productPrice: product.price,
+        buyerName: userData.name,
+        address: userData.address,
+        statusStep: 1,
+        history: [{ time: 'Baru Saja', desc: 'Pesanan berhasil dibuat oleh Pembeli.' }]
+      };
+
+      localStorage.setItem('ecantio_order', JSON.stringify(activeOrder));
+      cartCount++;
+      document.getElementById('cartCount').innerText = cartCount;
+
+      alert(`Pesanan berhasil dibuat! Menunggu persetujuan dari Admin.`);
+      closeCheckoutModal();
+      renderAdminOrderList();
+    }
+
+    function adminUpdateStatus(nextStep) {
+      if (!activeOrder) return;
+
+      if (nextStep === 2) {
+        activeOrder.statusStep = 2;
+        activeOrder.history.unshift({ time: 'Baru Saja', desc: 'Admin menyetujui pesanan. Paket sedang dikemas.' });
+      } else if (nextStep === 3) {
+        const locationInput = prompt('Masukkan lokasi/posisi paket saat ini:', 'Paket diserahkan ke kurir ECANTIO Express');
+        if (locationInput) {
+          activeOrder.statusStep = 3;
+          activeOrder.history.unshift({ time: 'Baru Saja', desc: locationInput });
+        }
+      } else if (nextStep === 4) {
+        activeOrder.statusStep = 4;
+        activeOrder.history.unshift({ time: 'Baru Saja', desc: 'Paket telah diterima di alamat tujuan. Pesanan Selesai.' });
+      }
+
+      localStorage.setItem('ecantio_order', JSON.stringify(activeOrder));
+      alert('Status pesanan berhasil diperbarui!');
+      renderAdminOrderList();
+    }
+
+    function renderAdminOrderList() {
+      const box = document.getElementById('adminOrderList');
+      if (!activeOrder) {
+        box.innerHTML = 'Belum ada pesanan aktif dari pembeli.';
+        return;
+      }
+
+      let btnHtml = '';
+      if (activeOrder.statusStep === 1) {
+        btnHtml = `<button class="btn-action-status" onclick="adminUpdateStatus(2)">Setujui & Set "Dikemas"</button>`;
+      } else if (activeOrder.statusStep === 2) {
+        btnHtml = `<button class="btn-action-status" onclick="adminUpdateStatus(3)">Kirim Paket (Input Lokasi Kurir)</button>`;
+      } else if (activeOrder.statusStep === 3) {
+        btnHtml = `<button class="btn-action-status" onclick="adminUpdateStatus(4)">Selesaikan Pesanan (Barang Sampai)</button>`;
+      } else {
+        btnHtml = `<span style="color: var(--success); font-weight: bold;">✅ Pesanan Selesai</span>`;
+      }
+
+      box.innerHTML = `
+        <div class="checkout-box">
+          <div><strong>No. Resi:</strong> ${activeOrder.id}</div>
+          <div><strong>Pembeli:</strong> ${activeOrder.buyerName}</div>
+          <div><strong>Produk:</strong> ${activeOrder.productName}</div>
+          <div><strong>Alamat:</strong> ${activeOrder.address}</div>
+          <div style="margin-top: 0.5rem;">${btnHtml}</div>
+        </div>
+      `;
+    }
+
+    function openOrderTrackingModal() {
+      if (!activeOrder) {
+        alert('Kamu belum memiliki pesanan aktif.');
+        return;
+      }
+
+      const body = document.getElementById('orderModalBody');
+      const step = activeOrder.statusStep;
+
+      let historyHtml = activeOrder.history.map(h => `
+        <div class="timeline-item">
+          <div class="timeline-desc">${h.desc}</div>
+          <div class="timeline-time">${h.time}</div>
+        </div>
+      `).join('');
+
+      body.innerHTML = `
+        <h3 style="color: var(--primary-green); margin-bottom: 0.3rem;">📦 Pelacakan Pesanan</h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted);">No. Resi: <strong style="color: var(--accent-gold);">${activeOrder.id}</strong></p>
+        
+        <div class="order-status-bar">
+          <div class="status-step ${step >= 2 ? 'done' : ''} ${step === 1 ? 'active' : ''}">
+            <div class="step-icon">⏳</div>
+            <div class="step-label">Menunggu</div>
+          </div>
+          <div class="status-step ${step >= 3 ? 'done' : ''} ${step === 2 ? 'active' : ''}">
+            <div class="step-icon">📦</div>
+            <div class="step-label">Dikemas</div>
+          </div>
+          <div class="status-step ${step >= 4 ? 'done' : ''} ${step === 3 ? 'active' : ''}">
+            <div class="step-icon">🚚</div>
+            <div class="step-label">Dikirim</div>
+          </div>
+          <div class="status-step ${step === 4 ? 'active done' : ''}">
+            <div class="step-icon">🏠</div>
+            <div class="step-label">Selesai</div>
+          </div>
+        </div>
+
+        <div class="checkout-box">
+          <h4 style="font-size: 0.85rem; color: var(--primary-green); margin-bottom: 0.8rem;">📍 Riwayat Pengiriman Real-time</h4>
+          <div class="tracking-timeline">${historyHtml}</div>
+        </div>
+
+        ${step === 3 ? `<button class="btn-submit" onclick="adminUpdateStatus(4); closeOrderModal();" style="margin-bottom: 0.5rem; background: var(--success); color: white;">✅ Konfirmasi Barang Telah Sampai</button>` : ''}
+        <button class="btn-submit" onclick="closeOrderModal()">Tutup</button>
+      `;
+
+      document.getElementById('orderModal').classList.add('active');
+    }
+
+    function closeOrderModal() { document.getElementById('orderModal').classList.remove('active'); }
+    function openProfileModal() {
+      document.getElementById('profileRole').innerText = currentUserRole;
+      document.getElementById('profileName').innerText = userData.name || '-';
+      document.getElementById('profileUsn').innerText = userData.usn ? '@' + userData.usn : '-';
+      document.getElementById('profilePhone').innerText = userData.phone || '-';
+      document.getElementById('profileAddress').innerText = userData.address || '-';
+      document.getElementById('profileModal').classList.add('active');
+    }
+    function closeProfileModal() { document.getElementById('profileModal').classList.remove('active'); }
+
+    function switchTabNav(tabName) {
+      if(tabName === 'beranda') showHomePage();
+      else if(tabName === 'keranjang') alert(`Keranjang Belanja terisi ${cartCount} item.`);
+    }
+
+    function addNewProduct(e) {
+      e.preventDefault();
+      const newProd = {
+        id: Date.now(),
+        category: document.getElementById('addCategory').value,
+        name: document.getElementById('addName').value,
+        priceNum: parseInt(document.getElementById('addPrice').value),
+        price: 'Rp ' + parseInt(document.getElementById('addPrice').value).toLocaleString('id-ID'),
+        rating: parseFloat(document.getElementById('addRating').value),
+        sold: parseInt(document.getElementById('addSold').value),
+        image: document.getElementById('addImage').value,
+        video: document.getElementById('addVideo').value,
+        officialUrl: document.getElementById('addOfficialUrl').value,
+        desc: document.getElementById('addDesc').value,
+        reviews: [
+          { name: 'Pengguna Baru', rating: '⭐⭐⭐⭐⭐', date: 'Baru saja', comment: 'Produk baru ditambahkan oleh Admin.' }
+        ]
+      };
+
+      products.push(newProd);
+      alert('Produk baru berhasil ditambahkan!');
+      renderProducts('all');
+      e.target.reset();
+    }
+
+    function deleteProduct(id) {
+      if (confirm('Yakin ingin menghapus produk ini?')) {
+        products = products.filter(p => p.id !== id);
+        renderProducts('all');
+      }
+    }
+
+    function filterCategory(category) {
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      renderProducts(category);
+    }
+
+    function openCheckoutModal(id) {
+      if(currentUserRole.includes('Admin')) {
+        alert('Anda sedang dalam mode Penjual/Admin.');
+        return;
+      }
+
+      const product = products.find(p => p.id === id);
+      if(!product) return;
+
+      selectedProductId = id;
+      document.getElementById('checkoutName').innerText = userData.name || 'Guest';
+      document.getElementById('checkoutAddress').innerText = userData.address || '-';
+
+      const totalHarga = product.priceNum + 20000;
+      document.getElementById('checkoutProductName').innerText = product.name;
+      document.getElementById('checkoutProductPrice').innerText = product.price;
+      document.getElementById('checkoutTotalPrice').innerText = 'Rp ' + totalHarga.toLocaleString('id-ID');
+
+      document.getElementById('checkoutModal').classList.add('active');
+    }
+
+    function closeCheckoutModal() { document.getElementById('checkoutModal').classList.remove('active'); }
+  </script>
+</body>
+</html>
